@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 16:11:54
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-05 18:54:46
+ * @LastEditTime: 2022-11-05 22:46:26
  * @FilePath: /A1_manifold_test/manifold_test/PolygenSoup.cpp
  * @Description: 
  *      implementation of PolygenSoup
@@ -21,21 +21,23 @@ using namespace std;
 PolygenSoup::PolygenSoup(char *file_name)
 {
     // initialize properties
-    unsigned int face_count = 0;
-    Face *face_arr = nullptr;
-    bool is_valid = false;
+    this->face_count = 0;
+    this->face_arr = nullptr;
+    this->is_valid = false;
 
     // file_name check
     if (file_name == nullptr)
         return;
     
     // suffix check
-    string name(file_name);
-    string suffixStr = name.substr(name.find_last_of('.') + 1);
+    string _file_name(file_name);
+    string suffixStr = _file_name.substr(_file_name.find_last_of('.') + 1);
     if (suffixStr != "tri") {
         cout << "Sorry, the file is not a .tri file." << endl;
         return;
     }
+    _file_name = _file_name.substr(_file_name.find_last_of('/') + 1);
+    name = _file_name.substr(0, _file_name.find_first_of('.')).c_str();
     
     // prepare 
     ifstream file;
@@ -43,7 +45,7 @@ PolygenSoup::PolygenSoup(char *file_name)
     char *token;
     char separater[] = " :,\t";
     unsigned int recorded_face_count = 0;
-    unsigned int recorded_vertex_index = 3;
+    unsigned int recorded_vertex_index = 0;
     Face *current_face = nullptr;
 
     // try to open file
@@ -69,32 +71,34 @@ PolygenSoup::PolygenSoup(char *file_name)
             // alloc memory
             this->face_arr = new Face*[this->face_count];
         } else {
-            if (recorded_vertex_index == 3) {
-                // insert current face and create a new face
-                if (current_face != nullptr) {
-                    this->face_arr[recorded_face_count] = current_face;
-                    recorded_face_count ++;
-                    if (recorded_face_count > this->face_count) 
-                        goto read_file_failed;
-                }
-                // create a new face
+            // read vertex data and insert vertex into current_face
+            if (current_face == nullptr) {
+                // create a new face if last face is inserted
                 current_face = new Face();
+            }
+            current_face->vertices[recorded_vertex_index].x = std::atof(token);
+            token = strtok(nullptr, separater);
+            if (token == nullptr)
+                goto read_file_failed;
+            current_face->vertices[recorded_vertex_index].y = std::atof(token);
+            token = strtok(nullptr, separater);
+            if (token == nullptr)
+                goto read_file_failed;
+            current_face->vertices[recorded_vertex_index].z = std::atof(token);
+            // check face is ready or not
+            if (++ recorded_vertex_index == 3) {
+                // insert current face
+                this->face_arr[recorded_face_count ++] = current_face;
+                current_face = nullptr;
+                if (recorded_face_count > this->face_count) 
+                    goto read_file_failed;
+                // reset vertex index
                 recorded_vertex_index = 0;
             }
-            // read vertex data and insert vertex into current_face
-            current_face->vertexes[recorded_vertex_index].x = std::atof(token);
-            token = strtok(nullptr, separater);
-            if (token == nullptr)
-                goto read_file_failed;
-            current_face->vertexes[recorded_vertex_index].y = std::atof(token);
-            token = strtok(nullptr, separater);
-            if (token == nullptr)
-                goto read_file_failed;
-            current_face->vertexes[recorded_vertex_index].z = std::atof(token);
-            recorded_vertex_index ++;
         }
     }
-    is_valid = true;
+    this->is_valid = true;
+    file.close();
     return;
 
     read_file_failed:
@@ -110,6 +114,10 @@ PolygenSoup::PolygenSoup(char *file_name)
         delete this->face_arr;
          this->face_arr = nullptr;
     }
+    if (current_face) {
+        delete current_face;
+    }
+    file.close();
 }
 
 PolygenSoup::~PolygenSoup()

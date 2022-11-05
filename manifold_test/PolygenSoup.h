@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 16:11:37
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-05 17:52:08
+ * @LastEditTime: 2022-11-05 23:08:28
  * @FilePath: /A1_manifold_test/manifold_test/PolygenSoup.h
  * @Description: 
  *      Polygen Soup struture, read in .tri file and 
@@ -21,10 +21,10 @@ public:
         float y;
         float z;
     };
-    // face stucture in polygen soup, just store the index of vertex in CCW
+    // face stucture in polygen soup, store three vertices
     struct Face
     {
-        Vertex vertexes[3];
+        Vertex vertices[3];
     };
     
     /**
@@ -45,6 +45,9 @@ public:
      * @return is_valid, if current polygen is workable
      */
     bool isValid() {return is_valid;}
+
+    // get the polygen name
+    const char *getName() { return name;}
     
     /**
      * @description: get the face at index
@@ -61,6 +64,8 @@ private:
     Face **face_arr;
     /* is valid or not*/
     bool is_valid;
+    /* name of this polygen */
+    const char *name;
 };
 
 #endif // PLOYGENSOUP_H
