@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 15:45:55
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-06 19:39:27
+ * @LastEditTime: 2022-11-06 21:30:14
  * @FilePath: /A1_manifold_test/manifold_test/DirectedEdge.cpp
  * @Description: 
  *      Half-Edge representation with directed-edge structure
@@ -59,7 +59,6 @@ DirectedEdge::DirectedEdge(FaceIndex *face_index_model)
     this->face_count_of_vertex = new unsigned int[size];
     size = 3 * this->face_count;
     this->other_harf_of_edge = new unsigned int[size];
-    this->face_count_of_half_edge = new unsigned int[size];
 
     // 4. assign initial value, O(n)
     for (unsigned int i = 0; i < this->vertex_count; i ++) {
@@ -68,13 +67,13 @@ DirectedEdge::DirectedEdge(FaceIndex *face_index_model)
     }
     for (unsigned int i = 0; i < 3 * this->face_count; i ++) {
         this->other_harf_of_edge[i] = UNKNOWN_HALF_EDGE;
-        this->face_count_of_half_edge[i] = 0;
     }
 
     // 5. find out first directed edge and half edge
     // iterate over all faces
     // use hash_map to acceleratre, this loop is O(n)
     unordered_map<HalfEdge, HalfEdgeRef, _halfedge_hashfunc, _halfedge_eqfunc> edge2edgeindex_map;
+    unordered_map<HalfEdge, vector<HalfEdgeRef>, _halfedge_hashfunc, _halfedge_eqfunc> pinched_edges;
     for (unsigned int face_index = 0; face_index < this->face_count; face_index ++) {
         Face face = getFaceAt(face_index);
         // iterate over all three vertices on this face, this loop is O(3)
@@ -84,7 +83,6 @@ DirectedEdge::DirectedEdge(FaceIndex *face_index_model)
             HalfEdgeRef to_edge_ref = 3 * face_index + (i + 1) % 3;
 
             // update face count of the vertex and the to_edge, O(1)
-            this->face_count_of_half_edge[to_edge_ref] ++;
             this->face_count_of_vertex[vertex_index] ++;
 
             // update first directed edge, O(1)
@@ -102,6 +100,10 @@ DirectedEdge::DirectedEdge(FaceIndex *face_index_model)
                 cout << "Face " << face_index << " has a duplicate Edge: vertex[" 
                      << to_edge.vertex_from << "]-->vertex[" << to_edge.vertex_to << "] " 
                      << "with Face " << faceIndexOfHalfEdge(p->second) << endl;
+                // this is a pinched edge, add into group
+                if (pinched_edges.find(to_edge) == pinched_edges.end())
+                    pinched_edges[to_edge].push_back(p->second);
+                pinched_edges[to_edge].push_back(to_edge_ref);
             } else {
                 // update map, O(1)
                 edge2edgeindex_map[to_edge] = to_edge_ref;
@@ -115,6 +117,11 @@ DirectedEdge::DirectedEdge(FaceIndex *face_index_model)
                 other_harf_of_edge[p->second] = to_edge_ref;
             }
         }
+    }
+
+    // record all pinched edges
+    for (auto p : pinched_edges) {
+        this->pinched_edges_group.push_back(p.second);
     }
 }
 
@@ -215,7 +222,6 @@ DirectedEdge::~DirectedEdge()
 {
     if (!this->is_valid)
         return;
-    delete this->face_count_of_half_edge;
     delete this->face_count_of_vertex;
     delete this->obj_name;
     delete this->vertices;

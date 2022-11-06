@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 15:46:06
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-06 19:37:05
+ * @LastEditTime: 2022-11-06 22:11:29
  * @FilePath: /A1_manifold_test/manifold_test/DirectedEdge.h
  * @Description: Half-Edge representation with directed-edge structure
  */
@@ -11,6 +11,7 @@
 
 #include <limits>
 #include <ostream>
+#include <vector>
 
 #define UNKNOWN_HALF_EDGE std::numeric_limits<unsigned int>::max()
 
@@ -51,7 +52,6 @@ public:
     const char* getName() { return obj_name; }
     unsigned int getFaceCount() { return face_count; }
     unsigned int getFaceCountOfVertex(unsigned int vertex_index) {return face_count_of_vertex[vertex_index];}
-    unsigned int getFaceCountOfHalfEdge(HalfEdgeRef edge) {return face_count_of_half_edge[edge];}
     unsigned int getVertexCount() { return vertex_count; }
     const DirectedEdge::Face& getFaceAt(unsigned int index) { return faces[index]; }
     const DirectedEdge::Vertex& getVertexAt(unsigned int index) { return vertices[index]; }
@@ -85,10 +85,13 @@ public:
     //.............\------->.[vertex_1]-------------/...........
     //..........................................................
     HalfEdgeRef firstDirectedHalfEdgeOnVertex(unsigned int vertex_index) { return first_directed_edge_of_vertex[vertex_index];}
-    HalfEdgeRef nextHalfEdge(HalfEdgeRef edge) { return (edge + 1) % 3 + faceIndexOfHalfEdge(edge); }
-    HalfEdgeRef prevHalfEdge(HalfEdgeRef edge) { return (edge + 2) % 3 + faceIndexOfHalfEdge(edge); }
+    HalfEdgeRef nextHalfEdge(HalfEdgeRef edge) { return (edge + 1) % 3 + 3 * faceIndexOfHalfEdge(edge); }
+    HalfEdgeRef prevHalfEdge(HalfEdgeRef edge) { return (edge + 2) % 3 + 3 * faceIndexOfHalfEdge(edge); }
     HalfEdgeRef otherHalfEdge(HalfEdgeRef edge) { return other_harf_of_edge[edge]; }
     // ------------------------------all methods until this line are O(1)------------------------------------------------------
+
+    // debug information, collect all pinched edges
+    std::vector<std::vector<HalfEdgeRef>> pinched_edges_group;
 
     ~DirectedEdge();
 private:
@@ -108,9 +111,8 @@ private:
     /* store the opposite edge of each edge*/
     HalfEdgeRef *other_harf_of_edge;
 
-    /* store how many faces adjcent to the vertex and half edge*/
+    /* store how many faces adjcent to the vertex */
     unsigned int *face_count_of_vertex;
-    unsigned int *face_count_of_half_edge; // should all be 1 if this is a manifold
 
     /* face count */
     unsigned int face_count;

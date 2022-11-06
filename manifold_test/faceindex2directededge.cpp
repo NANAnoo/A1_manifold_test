@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 15:47:49
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-06 19:05:19
+ * @LastEditTime: 2022-11-06 23:08:50
  * @FilePath: /A1_manifold_test/manifold_test/faceindex2directededge.cpp
  * @Description: commandline util, convert .face to .diredge file
  */
@@ -17,12 +17,12 @@ int main(int argc, char *args[])
 {
         if (argc >= 2) {
         char *file_path = args[1];
-        // build FaceIndex onject from file
+        // build DirectedEdge onject from file
         DirectedEdge obj(file_path);
         if (obj.isValid()) {
             std::cout << "Transform success with object: " << obj.getName() << std::endl;
         } else {
-            std::cout << "Transform failed with object: " << obj.getName() << std::endl;
+            std::cout << "Transform failed with file: " << file_path << std::endl;
             return 0;
         }
         std::string saved_file_path;
