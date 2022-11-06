@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 16:11:37
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-05 23:08:28
+ * @LastEditTime: 2022-11-06 11:18:47
  * @FilePath: /A1_manifold_test/manifold_test/PolygenSoup.h
  * @Description: 
  *      Polygen Soup struture, read in .tri file and 
@@ -53,7 +53,7 @@ public:
      * @description: get the face at index
      * @return face stucture at index
      */
-    const Face &operator[](unsigned int index) { return *face_arr[index]; }
+    const Face &operator[](unsigned int index) { return face_arr[index]; }
     
     ~PolygenSoup();
 
@@ -61,7 +61,7 @@ private:
     /* face count in the mesh */
     unsigned int face_count;
     /* face data in the mesh, stored in array*/
-    Face **face_arr;
+    Face *face_arr;
     /* is valid or not*/
     bool is_valid;
     /* name of this polygen */

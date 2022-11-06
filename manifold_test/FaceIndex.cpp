@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 15:45:31
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-05 23:33:17
+ * @LastEditTime: 2022-11-06 11:37:21
  * @FilePath: /A1_manifold_test/manifold_test/FaceIndex.cpp
  * @Description: convert polygen soup into face-index stucture
  */
@@ -108,12 +108,16 @@ void FaceIndex::saveTo(const char *file_name)
     }
     
     // suffix check
-    string name(file_name);
-    string suffixStr = name.substr(name.find_last_of('.') + 1);
+    string path(file_name);
+    string suffixStr = path.substr(path.find_last_of('.') + 1);
     if (suffixStr != "face") {
+        if (path[path.size() - 1] == '/') {
+            // is a dir, add name
+             path.append(obj_name);
+        }
         // add a .face suffix
-        suffixStr.append(".face");
-        file_name = suffixStr.c_str();
+        path.append(".face");
+        file_name = path.c_str();
     }
 
     // try to open file
