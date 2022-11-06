@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 16:11:54
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-06 11:23:43
+ * @LastEditTime: 2022-11-06 15:45:50
  * @FilePath: /A1_manifold_test/manifold_test/PolygenSoup.cpp
  * @Description: 
  *      implementation of PolygenSoup
@@ -18,7 +18,7 @@
 
 using namespace std;
 
-PolygenSoup::PolygenSoup(char *file_name)
+PolygenSoup::PolygenSoup(const char *file_name)
 {
     // initialize properties
     this->face_count = 0;

@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 16:11:37
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-06 11:18:47
+ * @LastEditTime: 2022-11-06 15:45:46
  * @FilePath: /A1_manifold_test/manifold_test/PolygenSoup.h
  * @Description: 
  *      Polygen Soup struture, read in .tri file and 
@@ -31,7 +31,7 @@ public:
      * @description: constructor, create PolygenSoup from .tri file
      * @param {char} *file_name, .tri file
      */
-    PolygenSoup(char *file_name);
+    PolygenSoup(const char *file_name);
 
     /**
      * @description: get the size of this PolygenSoup

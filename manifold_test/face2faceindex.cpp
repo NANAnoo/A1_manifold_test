@@ -2,9 +2,9 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 15:47:27
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-05 23:27:18
+ * @LastEditTime: 2022-11-06 16:16:58
  * @FilePath: /A1_manifold_test/manifold_test/face2faceindex.cpp
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @Description: commandline util, convert .tri to .face file
  */
 #include <iostream>
 #include <fstream>
@@ -23,6 +23,9 @@ int main(int argc, char *args[])
         FaceIndex f(file_path);
         if (f.isValid()) {
             std::cout << "Transform success with object: " << f.getName() << std::endl;
+        } else {
+            std::cout << "Transform failed with object: " << f.getName() << std::endl;
+            return 0;
         }
         std::string saved_file_path;
         if (argc >=3 )

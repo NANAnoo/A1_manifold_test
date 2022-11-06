@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 15:45:31
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-06 11:37:21
+ * @LastEditTime: 2022-11-06 19:42:48
  * @FilePath: /A1_manifold_test/manifold_test/FaceIndex.cpp
  * @Description: convert polygen soup into face-index stucture
  */
@@ -13,16 +13,11 @@
 #include <cstring>
 #include <unordered_map>
 
+#define BUFFER_LENGTH 1024
+
 using namespace std;
 
-FaceIndex::FaceIndex(char *file_name)
-{
-    PolygenSoup polygen_soup(file_name);
-    // placement new
-    new (this)FaceIndex(&polygen_soup);
-}
-
-FaceIndex::FaceIndex(PolygenSoup *polygen)
+FaceIndex::FaceIndex(const char *file_path)
 {
     // set all variables to default
     this->face_count = 0;
@@ -30,7 +25,23 @@ FaceIndex::FaceIndex(PolygenSoup *polygen)
     this->is_valid = false;
     this->vertices = nullptr;
     this->faces = nullptr;
-    
+
+    // suffix check
+    string _file_name(file_path);
+    string suffixStr = _file_name.substr(_file_name.find_last_of('.') + 1);
+    if (suffixStr == "face") {
+        // build from .face file
+        initFromFaceIndexFile(file_path);
+        return;
+    }
+    // build from .tri file
+    PolygenSoup polygen_soup(file_path);
+    // placement new
+    new (this)FaceIndex(&polygen_soup);
+}
+
+FaceIndex::FaceIndex(PolygenSoup *polygen)
+{   
     // check if the polygen is valid or not
     if (!polygen->isValid() || polygen->size() == 0) {
         cout << "face index init failed" << endl;
@@ -95,6 +106,121 @@ FaceIndex::FaceIndex(PolygenSoup *polygen)
         }
     }
     this->is_valid = true;
+}
+
+void FaceIndex::initFromFaceIndexFile(const char *file_path)
+{
+    // prepare 
+    ifstream file;
+    char line[BUFFER_LENGTH];
+    char *token;
+    char separater[] = " :=#\t";
+    bool read_file_succcess = true;
+
+    // try to open file
+    file.open(file_path, ios::in);
+    if (!file.is_open()) {
+        cout << "File open failed" << endl;
+        return;
+    }
+    
+    // read file
+    while (!file.eof())
+    {
+        // read line
+        file.getline(line, BUFFER_LENGTH);
+        token = strtok(line, separater);
+        
+        if (token == nullptr)
+            continue;
+        
+        // parse status
+        if (strcmp(token, "Object") == 0) {
+            // Name
+            token = strtok(nullptr, separater);
+            // $(obj_name)
+            token = strtok(nullptr, separater);
+            char *buffer = new char[strlen(token)];
+            strcpy(buffer, token);
+            obj_name = buffer;
+            if (token == nullptr) {
+                read_file_succcess = false;
+                break;
+            }
+        } else if (strcmp(token, "Vertices") == 0) {
+            // vertex count
+            token = strtok(nullptr, separater);
+            if (token != nullptr) {
+                this->vertex_count = atoi(token);
+            } else {
+                read_file_succcess = false;
+                break;
+            }
+            // face count
+            token = strtok(nullptr, separater);
+            if (token != nullptr && strcmp(token, "Faces") == 0) {
+                token = strtok(nullptr, separater);
+                if (token != nullptr) {
+                    this->face_count = atoi(token);
+                } else {
+                    read_file_succcess = false;
+                    break;
+                }
+            } else {
+                read_file_succcess = false;
+                break;
+            }
+            // alloc memory
+            this->vertices = new Vertex[this->vertex_count];
+            this->faces = new Face[this->face_count];
+        } else if (strcmp(token, "Vertex") == 0) {
+            // insert vertex data
+            token = strtok(nullptr, separater);
+            if (token == nullptr) {
+                read_file_succcess = false;
+                break;
+            }
+            unsigned int index = atoi(token);
+            if (index < this->vertex_count) {
+                // valid index, insert data
+                this->vertices[index].x = atof(strtok(nullptr, separater));
+                this->vertices[index].y = atof(strtok(nullptr, separater));
+                this->vertices[index].z = atof(strtok(nullptr, separater));
+            } else {
+                read_file_succcess = false;
+                break;
+            }
+        } else if (strcmp(token, "Face") == 0) {
+            // insert face data
+            token = strtok(nullptr, separater);
+            if (token == nullptr) {
+                read_file_succcess = false;
+                break;
+            }
+            unsigned int index = atoi(token);
+            if (index < this->face_count) {
+                // valid index, insert data
+                this->faces[index].vertex_index[0] = atoi(strtok(nullptr, separater));
+                this->faces[index].vertex_index[1] = atoi(strtok(nullptr, separater));
+                this->faces[index].vertex_index[2] = atoi(strtok(nullptr, separater));
+            } else {
+                read_file_succcess = false;
+                break;
+            }        
+        }
+    }
+    if (!read_file_succcess) {
+        // read failed
+        cout << "Sorry, the file format is wrong." << endl;
+        // try to release memory
+        if (this->faces != nullptr)
+            delete this->faces;
+        if (this->vertices != nullptr)
+            delete this->vertices;
+    } else {
+        // build success
+        is_valid = true;
+    }
 }
 
 

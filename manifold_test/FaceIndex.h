@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 15:45:21
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-05 23:07:52
+ * @LastEditTime: 2022-11-06 16:28:33
  * @FilePath: /A1_manifold_test/manifold_test/FaceIndex.h
  * @Description: 
  *      convert polygen soup into face-index stucture
@@ -18,6 +18,7 @@ class PolygenSoup;
 class FaceIndex
 {
 public:
+    // stucture in face index, continuous memory friendly
     // vertex stucture in FaceIndex
     struct Vertex
     {
@@ -32,7 +33,7 @@ public:
     };
 
     // constructors
-    FaceIndex(char *file_name);
+    FaceIndex(const char *file_name);
     FaceIndex(PolygenSoup *polygen);
 
     // save to file
@@ -48,6 +49,9 @@ public:
     Vertex getVertexAt(unsigned int index) {return vertices[index];}
     Face getFaceAt(unsigned int index) {return faces[index];}
 
+    const float *getVertexRawData() {return (float *)(vertices);}
+    unsigned int *getFaceIndexRawData() {return (unsigned int *)(faces);}
+
     const char *getName() {return obj_name;};
 
     bool isValid() {return is_valid;}
@@ -55,6 +59,8 @@ public:
     ~FaceIndex();
 
 private:
+    /* build model from .face file*/
+    void initFromFaceIndexFile(const char *file_path);
     /* name of this object */
     const char *obj_name;
     /* store the vertex coords, every 3 is a vertex*/
@@ -68,7 +74,7 @@ private:
     /* is valid */
     bool is_valid;
 
-    /* strcuture used to build hash set */
+    /* strcuture used to build hash map */
     struct _vertex_hashfunc
     {
         size_t operator()(const Vertex v) const
