@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 16:11:54
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-06 15:45:50
+ * @LastEditTime: 2022-11-08 14:35:10
  * @FilePath: /A1_manifold_test/manifold_test/PolygenSoup.cpp
  * @Description: 
  *      implementation of PolygenSoup
@@ -49,58 +49,28 @@ PolygenSoup::PolygenSoup(const char *file_name)
 
     // try to open file
     file.open(file_name, ios::in);
-    if (!file.is_open()) {
+    if (file.bad()) {
         cout << "File open failed" << endl;
         return;
     }
-
-    // read file
-    while (!file.eof())
-    {
-        // read line
-        file.getline(line, BUFFER_LENGTH);
-        token = strtok(line, separater);
-        if (token == nullptr)
-            continue;
-        if (this->face_count == 0) {
-            // read face count
-            this->face_count = std::atoi(token);
-            if (this->face_count <= 0) 
-                goto read_file_failed;
-            // alloc memory
-            this->face_arr = new Face[this->face_count];
-        } else {
-            // read vertex data and insert vertex into current face
-            this->face_arr[recorded_face_count].vertices[recorded_vertex_index].x = std::atof(token);
-            token = strtok(nullptr, separater);
-            if (token == nullptr)
-                goto read_file_failed;
-            this->face_arr[recorded_face_count].vertices[recorded_vertex_index].y = std::atof(token);
-            token = strtok(nullptr, separater);
-            if (token == nullptr)
-                goto read_file_failed;
-            this->face_arr[recorded_face_count].vertices[recorded_vertex_index].z = std::atof(token);
-            // check face is ready or not
-            if (++ recorded_vertex_index == 3) {
-                // update recorded_face_count
-                if (++ recorded_face_count > this->face_count) 
-                    goto read_file_failed;
-                // reset vertex index
-                recorded_vertex_index = 0;
-            }
-        }
+    // read face count
+    file >> this->face_count;
+    // alloc memory
+    this->face_arr = new Face[this->face_count];
+    // read vertex data
+    for (unsigned int face_index = 0; face_index < this->face_count; face_index ++) {
+        // read in three vertices in the face, 9 numbers in total
+        file >> this->face_arr[face_index].vertices[0].x
+             >> this->face_arr[face_index].vertices[0].y
+             >> this->face_arr[face_index].vertices[0].z;
+        file >> this->face_arr[face_index].vertices[1].x
+             >> this->face_arr[face_index].vertices[1].y
+             >> this->face_arr[face_index].vertices[1].z;
+        file >> this->face_arr[face_index].vertices[2].x
+             >> this->face_arr[face_index].vertices[2].y
+             >> this->face_arr[face_index].vertices[2].z;
     }
-    this->is_valid = true;
-    file.close();
-    return;
-
-    read_file_failed:
-    cout << "Sorry, the file format is wrong." << endl;
-    // release memory if needed
-    if (this->face_arr != nullptr) {
-        delete this->face_arr;
-         this->face_arr = nullptr;
-    }
+    is_valid = true;
     file.close();
 }
 

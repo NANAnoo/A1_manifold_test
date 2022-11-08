@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 15:45:55
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-06 21:30:14
+ * @LastEditTime: 2022-11-08 14:23:00
  * @FilePath: /A1_manifold_test/manifold_test/DirectedEdge.cpp
  * @Description: 
  *      Half-Edge representation with directed-edge structure
@@ -25,7 +25,7 @@ DirectedEdge::DirectedEdge(const char *file_path)
         new (this)DirectedEdge(&model);
     } else {
         is_valid = false;
-        cout << "Directed Edge Build Error, the .face file may be broken" << endl;
+        cout << "Directed Edge Build Error, the input file may be broken" << endl;
     }
 }
 
