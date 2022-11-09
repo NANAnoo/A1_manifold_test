@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 15:46:06
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-06 22:11:29
+ * @LastEditTime: 2022-11-09 00:34:38
  * @FilePath: /A1_manifold_test/manifold_test/DirectedEdge.h
  * @Description: Half-Edge representation with directed-edge structure
  */
@@ -12,6 +12,7 @@
 #include <limits>
 #include <ostream>
 #include <vector>
+#include <unordered_map>
 
 #define UNKNOWN_HALF_EDGE std::numeric_limits<unsigned int>::max()
 
@@ -34,6 +35,31 @@ public:
     {
         unsigned int vertex_index[3];
     };
+    // this stucture is used as key of hash map for acceleration 
+    struct HalfEdge
+    {
+        unsigned int vertex_from;
+        unsigned int vertex_to;
+    };
+    /* strcuture used to build hash map */
+    struct _halfedge_hashfunc
+    {
+        size_t operator()(const HalfEdge e) const
+        {
+            return size_t(e.vertex_from*14514+e.vertex_to*19);
+        }	
+    };
+    struct _halfedge_eqfunc
+    {
+        bool operator()(const HalfEdge e1, HalfEdge e2) const
+        {
+            return (e1.vertex_from == e2.vertex_from && e1.vertex_to == e2.vertex_to);
+        }	
+    };
+    // debug information, collect all pinched edges
+    // key : {vertex_from, vertex_to} --> value: [edge_0, ... edge_n];
+    std::unordered_map<HalfEdge, std::vector<HalfEdgeRef>, _halfedge_hashfunc, _halfedge_eqfunc> pinch_edges_groups;
+
     // constructors
     // init from .face file
     DirectedEdge(const char *file_path);
@@ -90,9 +116,6 @@ public:
     HalfEdgeRef otherHalfEdge(HalfEdgeRef edge) { return other_harf_of_edge[edge]; }
     // ------------------------------all methods until this line are O(1)------------------------------------------------------
 
-    // debug information, collect all pinched edges
-    std::vector<std::vector<HalfEdgeRef>> pinched_edges_group;
-
     ~DirectedEdge();
 private:
     // properties
@@ -123,28 +146,6 @@ private:
     /* is valid */
     bool is_valid;
 
-    // temporary stucture, used only in hash map
-    struct HalfEdge
-    {
-        unsigned int vertex_from;
-        unsigned int vertex_to;
-    };
-
-    /* strcuture used to build hash map */
-    struct _halfedge_hashfunc
-    {
-        size_t operator()(const HalfEdge e) const
-        {
-            return size_t(e.vertex_from*14514+e.vertex_to*19);
-        }	
-    };
-    struct _halfedge_eqfunc
-    {
-        bool operator()(const HalfEdge e1, HalfEdge e2) const
-        {
-            return (e1.vertex_from == e2.vertex_from && e1.vertex_to == e2.vertex_to);
-        }	
-    };
 };
 
 #endif // DIRECTEDEDGE_H

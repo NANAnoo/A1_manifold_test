@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 15:45:31
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-06 19:42:48
+ * @LastEditTime: 2022-11-09 01:18:51
  * @FilePath: /A1_manifold_test/manifold_test/FaceIndex.cpp
  * @Description: convert polygen soup into face-index stucture
  */
@@ -48,7 +48,7 @@ FaceIndex::FaceIndex(PolygenSoup *polygen)
         return;
     }
 
-    // start build face index structure, use hash map to optimize
+    // start build face index structure, use hash map to optimize, O(n)
     // store Vertex -> index of the Vertex
     unordered_map<Vertex, unsigned int, _vertex_hashfunc, _vertex_eqfunc> vertices_map;
 
@@ -63,7 +63,7 @@ FaceIndex::FaceIndex(PolygenSoup *polygen)
     // find out all vertices, this loop is O(n)
     for (index = 0; index < this->face_count; index ++)
     {
-        // iterate all face
+        // iterate all face, O(3) loop
         for (unsigned int i = 0; i < 3; i ++) {
             // get all vertices in this face
             PolygenSoup::Vertex v = (*polygen)[index].vertices[i];
@@ -95,13 +95,13 @@ FaceIndex::FaceIndex(PolygenSoup *polygen)
     index = 0;
     for (index = 0; index < this->face_count; index ++)
     {
-        // iterate all face
+        // iterate all face, this loop is O(3)
         for (unsigned int i = 0; i < 3; i ++) {
             // get all vertices in this face
             PolygenSoup::Vertex v = (*polygen)[index].vertices[i];
             
             // transfer into FaceIndex::Vertex
-            // find the index of the vertex, O(1) to find
+            // find the index of the vertex, O(1)
             this->faces[index].vertex_index[i] = vertices_map.find(Vertex({v.x, v.y, v.z}))->second;
         }
     }

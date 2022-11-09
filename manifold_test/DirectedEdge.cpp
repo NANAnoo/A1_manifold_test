@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 15:45:55
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-08 14:23:00
+ * @LastEditTime: 2022-11-09 01:20:08
  * @FilePath: /A1_manifold_test/manifold_test/DirectedEdge.cpp
  * @Description: 
  *      Half-Edge representation with directed-edge structure
@@ -10,7 +10,6 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
-#include <unordered_map>
 #include "DirectedEdge.h"
 #include "FaceIndex.h"
 
@@ -73,7 +72,6 @@ DirectedEdge::DirectedEdge(FaceIndex *face_index_model)
     // iterate over all faces
     // use hash_map to acceleratre, this loop is O(n)
     unordered_map<HalfEdge, HalfEdgeRef, _halfedge_hashfunc, _halfedge_eqfunc> edge2edgeindex_map;
-    unordered_map<HalfEdge, vector<HalfEdgeRef>, _halfedge_hashfunc, _halfedge_eqfunc> pinched_edges;
     for (unsigned int face_index = 0; face_index < this->face_count; face_index ++) {
         Face face = getFaceAt(face_index);
         // iterate over all three vertices on this face, this loop is O(3)
@@ -92,18 +90,17 @@ DirectedEdge::DirectedEdge(FaceIndex *face_index_model)
             // init edge as key, O(1)
             HalfEdge to_edge({vertex_index, face.vertex_index[(i + 1) % 3]});
             HalfEdge other_edge({to_edge.vertex_to, to_edge.vertex_from});
+            
+            // find key from hash_map, O(1)
             auto p = edge2edgeindex_map.find(to_edge);
 
             // check if the half edge is correct or not, O(1)
             if ( p != edge2edgeindex_map.end()) {
                 // error, each half_edge should be unique
-                cout << "Face " << face_index << " has a duplicate Edge: vertex[" 
-                     << to_edge.vertex_from << "]-->vertex[" << to_edge.vertex_to << "] " 
-                     << "with Face " << faceIndexOfHalfEdge(p->second) << endl;
-                // this is a pinched edge, add into group
-                if (pinched_edges.find(to_edge) == pinched_edges.end())
-                    pinched_edges[to_edge].push_back(p->second);
-                pinched_edges[to_edge].push_back(to_edge_ref);
+                // so this is a pinch edge, let's add it into group
+                if (pinch_edges_groups.find(to_edge) == pinch_edges_groups.end())
+                    pinch_edges_groups[to_edge].push_back(p->second);
+                pinch_edges_groups[to_edge].push_back(to_edge_ref);
             } else {
                 // update map, O(1)
                 edge2edgeindex_map[to_edge] = to_edge_ref;
@@ -112,16 +109,11 @@ DirectedEdge::DirectedEdge(FaceIndex *face_index_model)
             // try to find out the other_edge, O(1)
             p = edge2edgeindex_map.find(other_edge);
             if (p != edge2edgeindex_map.end()) {
-                // find the half-edge pair, just update, , O(1)
+                // find the half-edge pair, just update directly , O(1)
                 other_harf_of_edge[to_edge_ref] = p->second;
                 other_harf_of_edge[p->second] = to_edge_ref;
             }
         }
-    }
-
-    // record all pinched edges
-    for (auto p : pinched_edges) {
-        this->pinched_edges_group.push_back(p.second);
     }
 }
 
@@ -213,7 +205,7 @@ void DirectedEdge::print(std::ostream &stream)
         // OtherHalf $(index) $(OtherHalf)
         stream.setf(ios::showbase);
         stream << "OtherHalf " << i;
-        stream << " " << other_harf_of_edge[i]
+        stream << " " << (int)((other_harf_of_edge[i] == UNKNOWN_HALF_EDGE) ? -1 : other_harf_of_edge[i])
                << endl;
     }
 }
