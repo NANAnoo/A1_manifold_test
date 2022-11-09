@@ -1,0 +1,46 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug [face2faceindex]",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/face2faceindex",
+            "args": ["${workspaceFolder}/handout_models/${input:modelname}.tri", "${workspaceFolder}/outputs/face_files/"],
+            "stopOnEntry": false,
+            "cwd": "${workspaceFolder}/build",
+            "preLaunchTask": "CMake: build face2faceindex"
+        },
+        {
+            "name": "Debug [faceindex2directededge]",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/faceindex2directededge",
+            "args": ["${workspaceFolder}/outputs/face_files/${input:modelname}.face", "${workspaceFolder}/outputs/diredge_files/"],
+            "stopOnEntry": false,
+            "cwd": "${workspaceFolder}/build",
+            "preLaunchTask": "CMake: build faceindex2directededge"
+        },
+        {
+            "name": "Debug [manifoldchecker]",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/manifoldchecker",
+            "args": ["${workspaceFolder}/handout_models/${input:modelname}.tri"],
+            "stopOnEntry": false,
+            "cwd": "${workspaceFolder}/build",
+            "preLaunchTask": "CMake: build manifoldchecker"
+        }
+    ],
+    "inputs": [
+        {
+            "type": "promptString",
+            "id" : "modelname",
+            "description": "Input model name",
+            "default": "2ballout"
+        }
+    ]
+}
