@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 15:46:06
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-09 00:34:38
+ * @LastEditTime: 2022-11-09 01:39:01
  * @FilePath: /A1_manifold_test/manifold_test/DirectedEdge.h
  * @Description: Half-Edge representation with directed-edge structure
  */
@@ -13,6 +13,9 @@
 #include <ostream>
 #include <vector>
 #include <unordered_map>
+
+using std::vector;
+using std::unordered_map;
 
 #define UNKNOWN_HALF_EDGE std::numeric_limits<unsigned int>::max()
 
@@ -58,7 +61,7 @@ public:
     };
     // debug information, collect all pinched edges
     // key : {vertex_from, vertex_to} --> value: [edge_0, ... edge_n];
-    std::unordered_map<HalfEdge, std::vector<HalfEdgeRef>, _halfedge_hashfunc, _halfedge_eqfunc> pinch_edges_groups;
+    unordered_map<HalfEdge, vector<HalfEdgeRef>, _halfedge_hashfunc, _halfedge_eqfunc> pinch_edges_groups;
 
     // constructors
     // init from .face file
@@ -99,20 +102,12 @@ public:
     }
     
     // first half edge of the vertex
-    // first falf edge is the edge that follows the vertex
-    // For example: 
-    //          first_falf_edge(vertex_1) == half_edge_2
-    //..........................................................
-    //....[vertex_0]<-------(half_edge_0)-----------[vertex_2]..
-    //.........\........................................->......
-    //..........\....................................../........
-    //.......(half_edge_1).........................(half_edge_2)
-    //............\................................../..........
-    //.............\------->.[vertex_1]-------------/...........
-    //..........................................................
     HalfEdgeRef firstDirectedHalfEdgeOnVertex(unsigned int vertex_index) { return first_directed_edge_of_vertex[vertex_index];}
+    // next half edge of the edge on the same face
     HalfEdgeRef nextHalfEdge(HalfEdgeRef edge) { return (edge + 1) % 3 + 3 * faceIndexOfHalfEdge(edge); }
+    // previous half edge of the edge on the same face
     HalfEdgeRef prevHalfEdge(HalfEdgeRef edge) { return (edge + 2) % 3 + 3 * faceIndexOfHalfEdge(edge); }
+    // the opposite edge of the edge
     HalfEdgeRef otherHalfEdge(HalfEdgeRef edge) { return other_harf_of_edge[edge]; }
     // ------------------------------all methods until this line are O(1)------------------------------------------------------
 
@@ -122,10 +117,10 @@ private:
     /* name of this object */
     const char *obj_name;
 
-    /* store the vertex coords, every 3 is a vertex*/
+    /* store the vertex coords */
     Vertex *vertices;
 
-    /* store the vertex indexes, every 3 is a face */
+    /* store the vertex indexes */
     Face *faces;
 
     /* store the first directed edge*/
@@ -134,7 +129,7 @@ private:
     /* store the opposite edge of each edge*/
     HalfEdgeRef *other_harf_of_edge;
 
-    /* store how many faces adjcent to the vertex */
+    /* store how many faces attached to the vertex */
     unsigned int *face_count_of_vertex;
 
     /* face count */
