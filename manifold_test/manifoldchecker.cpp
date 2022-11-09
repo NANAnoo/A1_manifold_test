@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-06 20:51:28
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-09 01:24:44
+ * @LastEditTime: 2022-11-09 16:15:01
  * @FilePath: /A1_manifold_test/manifold_test/manifoldchecker.cpp
  * @Description: 
  *      check if the object is manifold or not
@@ -107,7 +107,7 @@ int main(int argc, char *args[])
         // output information
         if (uncontinuous_edges.size() > 0) {
             std::cout << std::endl << "[Uncontinous face error] The object has some faces that are uncontinuous, " << std::endl;
-            std::cout << "Half Edges : ";
+            std::cout << "Half Edges : " << std::endl;
         }
         for (DirectedEdge::HalfEdgeRef edge : uncontinuous_edges) {
             std::cout << edge << " ";

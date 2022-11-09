@@ -2,7 +2,7 @@
  * @Author: Hao Zhang sc22hz@leeds.ac.uk
  * @Date: 2022-11-05 15:45:55
  * @LastEditors: Hao Zhang sc22hz@leeds.ac.uk
- * @LastEditTime: 2022-11-09 01:20:08
+ * @LastEditTime: 2022-11-09 01:56:30
  * @FilePath: /A1_manifold_test/manifold_test/DirectedEdge.cpp
  * @Description: 
  *      Half-Edge representation with directed-edge structure
@@ -68,7 +68,7 @@ DirectedEdge::DirectedEdge(FaceIndex *face_index_model)
         this->other_harf_of_edge[i] = UNKNOWN_HALF_EDGE;
     }
 
-    // 5. find out first directed edge and half edge
+    // 5. find out first directed edge and other half edge
     // iterate over all faces
     // use hash_map to acceleratre, this loop is O(n)
     unordered_map<HalfEdge, HalfEdgeRef, _halfedge_hashfunc, _halfedge_eqfunc> edge2edgeindex_map;
